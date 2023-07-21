@@ -10,13 +10,18 @@ void _on_actor_tick(Actor *actor) {
   ag_actor_move_forward(actor, 1);
 }
 
+void _on_patch_tick(Actor *patch) {
+  // ...
+}
+
 int main(void) {
   srand(time(0));
 
   Simulation simulation = ag_simulation_new();
   ag_actor_group_spawn_count(&simulation.actors, 2);
+  printf("count: %zu\n", simulation.actors.count);
   for (int tick = 0; tick <= 100; tick++) {
-    ag_simulation_run(&simulation, _on_actor_tick);
+    ag_simulation_run(&simulation, _on_actor_tick, _on_patch_tick);
   }
 
   for (size_t index = 0; index < simulation.actors.count; index++) {

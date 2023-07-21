@@ -1,6 +1,7 @@
 #ifndef __AG_ACTOR_GROUP__
 #define __AG_ACTOR_GROUP__
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "actor.c"
@@ -41,11 +42,16 @@ void ag_actor_group_spawn_count(ActorGroup *group, size_t count) {
   }
   for (size_t index = old_count; index < group->count; index++) {
     group->as[index] = ag_actor_new();
+    group->as[index].properties[AG_ACTOR_IS_ALIVE] = true;
   }
 }
 
 void ag_actor_group_perform(ActorGroup group, ActorUpdate update) {
   for (size_t index = 0; index < group.count; index++) {
+    Actor *actor = &group.as[index];
+    if (!ag_actor_is_alive(actor)) {
+      continue;
+    }
     update(&group.as[index]);
   }
 }
