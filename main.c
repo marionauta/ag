@@ -11,7 +11,12 @@ void _on_actor_tick(Actor *actor) {
 }
 
 void _on_patch_tick(Actor *patch) {
-  // ...
+  if (patch->properties[AG_PATCH_HAS_GREEN]) {
+    return;
+  }
+  if ((rand() % 100) < 3) {
+    patch->properties[AG_PATCH_HAS_GREEN] = true;
+  }
 }
 
 int main(void) {

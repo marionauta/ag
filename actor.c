@@ -16,6 +16,7 @@ typedef struct Actor {
 #define AG_ACTOR_SIZE (sizeof(Actor))
 
 #define AG_ACTOR_IS_ALIVE 0
+#define AG_PATCH_HAS_GREEN 0
 
 typedef void (*ActorUpdate)(Actor *);
 

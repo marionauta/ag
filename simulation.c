@@ -26,6 +26,7 @@ Simulation ag_simulation_new() {
   for (size_t row = 0; row < SIMULATION_HEIGHT; row++) {
     for (size_t col = 0; col < SIMULATION_WIDTH; col++) {
       simulation.patches[row][col] = ag_actor_new();
+      simulation.patches[row][col].properties[AG_PATCH_HAS_GREEN] = true;
     }
   }
   return simulation;
