@@ -18,11 +18,11 @@ World ag_world_new(void);
 World ag_world_copy(const World *world);
 void ag_world_destroy(World *world);
 void ag_world_spawn_agents(World *world, size_t count, AgentUpdate setup);
-World ag_world_tick(const World *world, AgentUpdate agent_update,
-                    AgentUpdate patch_update);
+World ag_world_tick(const World *world, const AgentUpdate agent_update,
+                    const AgentUpdate patch_update);
 
 void ag_agent_group_perform(AgentGroup *group, const World *world,
-                            AgentUpdate update);
+                            const AgentUpdate update);
 
 void _setup_patch(Agent *patch, const World *world) {
   patch->properties[AG_PATCH_HAS_GREEN] = true;
@@ -60,8 +60,8 @@ void ag_world_spawn_agents(World *world, size_t count, AgentUpdate setup) {
   }
 }
 
-World ag_world_tick(const World *world, AgentUpdate agent_update,
-                    AgentUpdate patch_update) {
+World ag_world_tick(const World *world, const AgentUpdate agent_update,
+                    const AgentUpdate patch_update) {
   World new_world = ag_world_copy(world);
   ag_agent_group_perform(&new_world.agents, world, agent_update);
   ag_agent_group_perform(&new_world.patches, world, patch_update);
@@ -71,7 +71,7 @@ World ag_world_tick(const World *world, AgentUpdate agent_update,
 // AgentGroup
 
 void ag_agent_group_perform(AgentGroup *group, const World *world,
-                            AgentUpdate update) {
+                            const AgentUpdate update) {
   for (size_t index = 0; index < group->count; index++) {
     update(&group->as[index], world);
   }

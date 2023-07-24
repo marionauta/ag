@@ -10,14 +10,14 @@ typedef struct Vector2 {
 } Vector2;
 
 Vector2 vector2_origin(void);
-Vector2 vector2_random(double max_x, double max_y);
+Vector2 vector2_random(const double max_x, const double max_y);
 double vector2_length(const Vector2 *vector);
 void vector2_normalise(Vector2 *vector);
 Vector2 vector2_normalised(Vector2 vector);
 
 Vector2 vector2_origin(void) { return (Vector2){.x = 0, .y = 0}; }
 
-Vector2 vector2_random(double max_x, double max_y) {
+Vector2 vector2_random(const double max_x, const double max_y) {
   return (Vector2){
       .x = double_random(max_x),
       .y = double_random(max_y),

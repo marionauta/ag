@@ -14,7 +14,7 @@ typedef struct AgentGroup {
 AgentGroup ag_agent_group_new(void);
 AgentGroup ag_agent_group_copy(const AgentGroup *group);
 void ag_agent_group_destroy(AgentGroup *group);
-Agent *ag_agent_group_spawn_count(AgentGroup *group, size_t count);
+Agent *ag_agent_group_spawn_count(AgentGroup *group, const size_t count);
 
 AgentGroup ag_agent_group_new(void) {
   return (AgentGroup){
@@ -42,7 +42,7 @@ void ag_agent_group_destroy(AgentGroup *group) {
 
 // Returns a pointer to the newly created agents,
 // or NULL if there was an error.
-Agent *ag_agent_group_spawn_count(AgentGroup *group, size_t count) {
+Agent *ag_agent_group_spawn_count(AgentGroup *group, const size_t count) {
   size_t old_count = group->count;
   size_t new_count = group->count + count;
   Agent *newptr = realloc(group->as, AG_AGENT_SIZE * new_count);

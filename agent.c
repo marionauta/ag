@@ -20,8 +20,8 @@ typedef struct Agent {
 
 Agent ag_agent_new(void);
 void ag_agent_randomise_direction(Agent *agent);
-void ag_agent_move_direction(Agent *agent, Vector2 direction);
-void ag_agent_move_forward(Agent *agent, double amount);
+void ag_agent_move_direction(Agent *agent, const Vector2 direction);
+void ag_agent_move_forward(Agent *agent, const double amount);
 bool ag_agent_is_alive(const Agent *agent);
 
 Agent ag_agent_new(void) {
@@ -39,12 +39,12 @@ void ag_agent_randomise_direction(Agent *agent) {
   vector2_normalise(&agent->direction);
 }
 
-void ag_agent_move_direction(Agent *agent, Vector2 direction) {
+void ag_agent_move_direction(Agent *agent, const Vector2 direction) {
   agent->position.x += direction.x;
   agent->position.y += direction.y;
 }
 
-void ag_agent_move_forward(Agent *agent, double amount) {
+void ag_agent_move_forward(Agent *agent, const double amount) {
   Vector2 direction = vector2_normalised(agent->direction);
   Vector2 movement = {.x = direction.x * amount, .y = direction.y * amount};
   ag_agent_move_direction(agent, movement);
