@@ -4,6 +4,11 @@
 
 #include "agent_group.c"
 #include "simulation.c"
+#include "world.c"
+
+void _print_agent_position(Agent *agent) {
+  printf("position (%.2f, %.2f)\n", agent->position.x, agent->position.y);
+}
 
 void _on_agent_tick(Agent *agent) {
   ag_agent_randomise_direction(agent);
@@ -22,17 +27,12 @@ void _on_patch_tick(Agent *patch) {
 int main(void) {
   srand(time(0));
 
-  Simulation simulation = ag_simulation_new();
-  ag_agent_group_spawn_count(&simulation.agents, 2);
-  printf("count: %zu\n", simulation.agents.count);
+  World world = ag_world_new();
+  ag_world_spawn_agents(&world, 2, NULL);
+  printf("count: %zu\n", world.agents.count);
   for (size_t tick = 0; tick <= 100; tick++) {
-    ag_simulation_run(&simulation, _on_agent_tick, _on_patch_tick);
+    ag_simulation_run(&world, _on_agent_tick, _on_patch_tick);
   }
-
-  for (size_t index = 0; index < simulation.agents.count; index++) {
-    Agent agent = simulation.agents.as[index];
-    printf("position (%.2f, %.2f)\n", agent.position.x, agent.position.y);
-  }
-
-  ag_simulation_destroy(&simulation);
+  ag_agent_group_perform(world.agents, _print_agent_position);
+  ag_world_destroy(&world);
 }
