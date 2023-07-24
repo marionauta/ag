@@ -3,7 +3,6 @@
 #include <time.h>
 
 #include "agent_group.c"
-#include "simulation.c"
 #include "world.c"
 
 void _print_agent_position(Agent *agent, const World *world) {
@@ -29,10 +28,13 @@ int main(void) {
 
   World world = ag_world_new();
   ag_world_spawn_agents(&world, 2, NULL);
-  printf("count: %zu\n", world.agents.count);
+
   for (size_t tick = 0; tick <= 100; tick++) {
-    ag_simulation_run(&world, _on_agent_tick, _on_patch_tick);
+    World new_world = ag_world_tick(&world, _on_agent_tick, _on_patch_tick);
+    ag_world_destroy(&world);
+    world = new_world;
   }
+
   ag_agent_group_perform(&world.agents, &world, _print_agent_position);
   ag_world_destroy(&world);
 }

@@ -2,6 +2,7 @@
 #define __AG_AGENT_GROUP__
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "agent.c"
 
@@ -11,6 +12,7 @@ typedef struct AgentGroup {
 } AgentGroup;
 
 AgentGroup ag_agent_group_new(void);
+AgentGroup ag_agent_group_copy(const AgentGroup *group);
 void ag_agent_group_destroy(AgentGroup *group);
 Agent *ag_agent_group_spawn_count(AgentGroup *group, size_t count);
 
@@ -21,10 +23,20 @@ AgentGroup ag_agent_group_new(void) {
   };
 }
 
-void ag_agent_group_destroy(AgentGroup *group) {
-  if (group->as != NULL) {
-    free(group->as);
+AgentGroup ag_agent_group_copy(const AgentGroup *group) {
+  AgentGroup result = ag_agent_group_new();
+  Agent *newptr = malloc(AG_AGENT_SIZE * group->count);
+  if (newptr == NULL) {
+    abort();
   }
+  result.as = newptr;
+  result.count = group->count;
+  memcpy(result.as, group->as, AG_AGENT_SIZE * group->count);
+  return result;
+}
+
+void ag_agent_group_destroy(AgentGroup *group) {
+  free(group->as);
   group->count = 0;
 }
 
