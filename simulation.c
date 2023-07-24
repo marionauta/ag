@@ -12,8 +12,8 @@ void ag_simulation_run(World *world, AgentUpdate agent_update,
 
 void ag_simulation_run(World *world, AgentUpdate agent_update,
                        AgentUpdate patch_update) {
-  ag_agent_group_perform(world->agents, agent_update);
-  ag_agent_group_perform(world->patches, patch_update);
+  ag_agent_group_perform(&world->agents, world, agent_update);
+  ag_agent_group_perform(&world->patches, world, patch_update);
 }
 
 #endif // __AG_SIMULATION__

@@ -12,11 +12,16 @@ typedef struct World {
   AgentGroup patches;
 } World;
 
+typedef void (*AgentUpdate)(Agent *agent, const World *world);
+
 World ag_world_new(void);
 void ag_world_destroy(World *world);
 void ag_world_spawn_agents(World *world, size_t count, AgentUpdate setup);
 
-void _setup_patch(Agent *patch) {
+void ag_agent_group_perform(AgentGroup *group, const World *world,
+                            AgentUpdate update);
+
+void _setup_patch(Agent *patch, const World *world) {
   patch->properties[AG_PATCH_HAS_GREEN] = true;
 }
 
@@ -26,7 +31,7 @@ World ag_world_new(void) {
       .patches = ag_agent_group_new(),
   };
   ag_agent_group_spawn_count(&world.patches, AG_PATCHES_COUNT);
-  ag_agent_group_perform(world.patches, _setup_patch);
+  ag_agent_group_perform(&world.patches, &world, _setup_patch);
   return world;
 }
 
@@ -41,7 +46,16 @@ void ag_world_spawn_agents(World *world, size_t count, AgentUpdate setup) {
     return;
   }
   for (size_t index = 0; index < count; index++) {
-    setup(&agents[index]);
+    setup(&agents[index], world);
+  }
+}
+
+// AgentGroup
+
+void ag_agent_group_perform(AgentGroup *group, const World *world,
+                            AgentUpdate update) {
+  for (size_t index = 0; index < group->count; index++) {
+    update(&group->as[index], world);
   }
 }
 

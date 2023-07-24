@@ -18,8 +18,6 @@ typedef struct Agent {
 #define AG_AGENT_IS_ALIVE 0
 #define AG_PATCH_HAS_GREEN 0
 
-typedef void (*AgentUpdate)(Agent *);
-
 Agent ag_agent_new(void);
 void ag_agent_randomise_direction(Agent *agent);
 void ag_agent_move_direction(Agent *agent, Vector2 direction);

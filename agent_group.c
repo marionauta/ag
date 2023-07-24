@@ -1,7 +1,6 @@
 #ifndef __AG_AGENT_GROUP__
 #define __AG_AGENT_GROUP__
 
-#include <stdbool.h>
 #include <stdlib.h>
 
 #include "agent.c"
@@ -14,7 +13,6 @@ typedef struct AgentGroup {
 AgentGroup ag_agent_group_new(void);
 void ag_agent_group_destroy(AgentGroup *group);
 Agent *ag_agent_group_spawn_count(AgentGroup *group, size_t count);
-void ag_agent_group_perform(AgentGroup group, AgentUpdate update);
 
 AgentGroup ag_agent_group_new(void) {
   return (AgentGroup){
@@ -45,12 +43,6 @@ Agent *ag_agent_group_spawn_count(AgentGroup *group, size_t count) {
     group->as[index] = ag_agent_new();
   }
   return &group->as[old_count];
-}
-
-void ag_agent_group_perform(AgentGroup group, AgentUpdate update) {
-  for (size_t index = 0; index < group.count; index++) {
-    update(&group.as[index]);
-  }
 }
 
 #endif // __AG_AGENT_GROUP__
