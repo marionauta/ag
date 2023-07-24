@@ -20,7 +20,7 @@ int main(void) {
   Simulation simulation = ag_simulation_new();
   ag_actor_group_spawn_count(&simulation.actors, 2);
   printf("count: %zu\n", simulation.actors.count);
-  for (int tick = 0; tick <= 100; tick++) {
+  for (size_t tick = 0; tick <= 100; tick++) {
     ag_simulation_run(&simulation, _on_actor_tick, _on_patch_tick);
   }
 

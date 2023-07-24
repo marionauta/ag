@@ -2,7 +2,7 @@
 #define __AG_ACTOR__
 
 #include <stdbool.h>
-#include <stdlib.h>
+#include <stdint.h>
 
 #include "tools.c"
 #include "vector2.c"
