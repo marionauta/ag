@@ -46,8 +46,8 @@ World ag_world_copy(const World *world) {
 }
 
 void ag_world_destroy(World *world) {
-  return ag_agent_group_destroy(&world->agents);
-  return ag_agent_group_destroy(&world->patches);
+  ag_agent_group_destroy(&world->agents);
+  ag_agent_group_destroy(&world->patches);
 }
 
 void ag_world_spawn_agents(World *world, size_t count, AgentUpdate setup) {
