@@ -3,11 +3,17 @@
 
 #include <math.h>
 
+#ifdef __AG_USING_RAYLIB__
+#include <raylib.h>
+#endif // __AG_USING_RAYLIB__
+
 #include "tools.c"
 
+#ifndef __AG_USING_RAYLIB__
 typedef struct Vector2 {
   double x, y;
 } Vector2;
+#endif // __AG_USING_RAYLIB__
 
 Vector2 vector2_origin(void);
 Vector2 vector2_random(const double max_x, const double max_y);
