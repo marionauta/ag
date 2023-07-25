@@ -13,6 +13,8 @@ typedef struct Agent {
   int32_t properties[10];
 } Agent;
 
+#define Patch Agent
+
 #define AG_AGENT_SIZE (sizeof(Agent))
 
 #define AG_AGENT_IS_ALIVE 0

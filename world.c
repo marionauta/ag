@@ -1,6 +1,8 @@
 #ifndef __AG_WORLD__
 #define __AG_WORLD__
 
+#include <stdbool.h>
+
 #include "agent_group.c"
 
 #define AG_WORLD_WIDTH 16
@@ -24,9 +26,7 @@ World ag_world_tick(const World *world, const AgentUpdate agent_update,
 void ag_agent_group_perform(AgentGroup *group, const World *world,
                             const AgentUpdate update);
 
-void _setup_patch(Agent *patch, const World *world) {
-  patch->properties[AG_PATCH_HAS_GREEN] = true;
-}
+void _setup_patches(AgentGroup *group);
 
 World ag_world_new(void) {
   World world = {
@@ -34,7 +34,7 @@ World ag_world_new(void) {
       .patches = ag_agent_group_new(),
   };
   ag_agent_group_spawn_count(&world.patches, AG_PATCHES_COUNT);
-  ag_agent_group_perform(&world.patches, &world, _setup_patch);
+  _setup_patches(&world.patches);
   return world;
 }
 
@@ -72,8 +72,25 @@ World ag_world_tick(const World *world, const AgentUpdate agent_update,
 
 void ag_agent_group_perform(AgentGroup *group, const World *world,
                             const AgentUpdate update) {
+  if (update == NULL) {
+    return;
+  }
   for (size_t index = 0; index < group->count; index++) {
     update(&group->as[index], world);
+  }
+}
+
+// Patches
+
+void _setup_patches(AgentGroup *group) {
+  for (size_t col = 0; col < AG_WORLD_WIDTH; col++) {
+    for (size_t row = 0; row < AG_WORLD_HEIGHT; row++) {
+      size_t index = row * AG_WORLD_WIDTH + col;
+      Patch *patch = &group->as[index];
+      patch->position.x = (double)col;
+      patch->position.y = (double)row;
+      patch->properties[AG_PATCH_HAS_GREEN] = false;
+    }
   }
 }
 
