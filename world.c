@@ -14,17 +14,12 @@ typedef struct World {
   AgentGroup patches;
 } World;
 
-typedef void (*AgentUpdate)(Agent *agent, const World *world);
-
 World ag_world_new(void);
 World ag_world_copy(const World *world);
 void ag_world_destroy(World *world);
-void ag_world_spawn_agents(World *world, size_t count, AgentUpdate setup);
+void ag_world_spawn_agents(World *world, size_t count, const AgentUpdate setup);
 World ag_world_tick(const World *world, const AgentUpdate agent_update,
                     const AgentUpdate patch_update);
-
-void ag_agent_group_perform(AgentGroup *group, const World *world,
-                            const AgentUpdate update);
 
 void _setup_patches(AgentGroup *group);
 
@@ -50,7 +45,8 @@ void ag_world_destroy(World *world) {
   ag_agent_group_destroy(&world->patches);
 }
 
-void ag_world_spawn_agents(World *world, size_t count, AgentUpdate setup) {
+void ag_world_spawn_agents(World *world, size_t count,
+                           const AgentUpdate setup) {
   Agent *agents = ag_agent_group_spawn_count(&world->agents, count);
   if (agents == NULL || setup == NULL) {
     return;
@@ -66,18 +62,6 @@ World ag_world_tick(const World *world, const AgentUpdate agent_update,
   ag_agent_group_perform(&new_world.agents, world, agent_update);
   ag_agent_group_perform(&new_world.patches, world, patch_update);
   return new_world;
-}
-
-// AgentGroup
-
-void ag_agent_group_perform(AgentGroup *group, const World *world,
-                            const AgentUpdate update) {
-  if (update == NULL) {
-    return;
-  }
-  for (size_t index = 0; index < group->count; index++) {
-    update(&group->as[index], world);
-  }
 }
 
 // Patches

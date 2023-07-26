@@ -11,10 +11,15 @@ typedef struct AgentGroup {
   size_t count;
 } AgentGroup;
 
+typedef struct World World; // defined in world.c
+typedef void (*AgentUpdate)(Agent *agent, const World *world);
+
 AgentGroup ag_agent_group_new(void);
 AgentGroup ag_agent_group_copy(const AgentGroup *group);
 void ag_agent_group_destroy(AgentGroup *group);
 Agent *ag_agent_group_spawn_count(AgentGroup *group, const size_t count);
+void ag_agent_group_perform(AgentGroup *group, const World *world,
+                            const AgentUpdate update);
 
 AgentGroup ag_agent_group_new(void) {
   return (AgentGroup){
@@ -55,6 +60,16 @@ Agent *ag_agent_group_spawn_count(AgentGroup *group, const size_t count) {
     group->as[index] = ag_agent_new();
   }
   return &group->as[old_count];
+}
+
+void ag_agent_group_perform(AgentGroup *group, const World *world,
+                            const AgentUpdate update) {
+  if (update == NULL) {
+    return;
+  }
+  for (size_t index = 0; index < group->count; index++) {
+    update(&group->as[index], world);
+  }
 }
 
 #endif // __AG_AGENT_GROUP__
