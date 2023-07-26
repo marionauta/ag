@@ -28,7 +28,8 @@ int main(void) {
   ag_world_spawn_agents(&world, 1000, NULL);
   float seconds_since_tick = 0;
 
-  while (!WindowShouldClose()) {
+  bool should_close = false;
+  while (!should_close && !WindowShouldClose()) {
     seconds_since_tick += GetFrameTime();
     bool should_tick = seconds_since_tick > TICK_TIME_DELTA;
     if (should_tick) {
@@ -42,6 +43,10 @@ int main(void) {
     ag_world_render(&world);
     EndDrawing();
     WaitTime(TICK_TIME_DELTA);
+
+    if (ag_world_is_done(&world)) {
+      should_close = true;
+    }
   }
 
   ag_world_destroy(&world);

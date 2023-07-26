@@ -20,6 +20,7 @@ void ag_world_destroy(World *world);
 void ag_world_spawn_agents(World *world, size_t count, const AgentUpdate setup);
 World ag_world_tick(const World *world, const AgentUpdate agent_update,
                     const AgentUpdate patch_update);
+bool ag_world_is_done(const World *world);
 
 void _setup_patches(AgentGroup *group);
 
@@ -62,6 +63,15 @@ World ag_world_tick(const World *world, const AgentUpdate agent_update,
   ag_agent_group_perform(&new_world.agents, world, agent_update);
   ag_agent_group_perform(&new_world.patches, world, patch_update);
   return new_world;
+}
+
+bool ag_world_is_done(const World *world) {
+  for (size_t index = 0; index < world->patches.count; index++) {
+    if (!world->patches.as[index].properties[AG_PATCH_HAS_GREEN]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 // Patches
