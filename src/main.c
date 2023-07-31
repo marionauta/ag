@@ -1,20 +1,70 @@
+#include <raylib.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#include "agent_group.c"
+#define __AG_USING_RAYLIB__
+
+#include "tools.c"
 #include "world.c"
 
-void _print_agent_position(Agent *agent, const World *world) {
-  printf("position (%.2f, %.2f)\n", agent->position.x, agent->position.y);
+#define TICKS_PER_SECOND 100
+#define TICK_TIME_DELTA (1.0 / TICKS_PER_SECOND)
+
+#define PATCH_LENGTH 40
+#define SCREEN_WIDTH (PATCH_LENGTH * AG_WORLD_WIDTH)
+#define SCREEN_HEIGHT (PATCH_LENGTH * AG_WORLD_HEIGHT)
+
+void ag_world_render(const World *world);
+void _on_agent_setup(Agent *agent, const World *world);
+void _on_agent_tick(Agent *agent, const World *world);
+void _on_patch_tick(Patch *patch, const World *world);
+
+int main(void) {
+  srand(time(0));
+
+  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Agents");
+  SetTargetFPS(60);
+
+  World world = ag_world_new();
+  ag_world_spawn_agents(&world, 1000, _on_agent_setup);
+  float seconds_since_tick = 0;
+
+  bool should_close = false;
+  while (!should_close && !WindowShouldClose()) {
+    seconds_since_tick += GetFrameTime();
+    bool should_tick = seconds_since_tick > TICK_TIME_DELTA;
+    if (should_tick) {
+      seconds_since_tick = 0;
+      World new_world = ag_world_tick(&world, _on_agent_tick, _on_patch_tick);
+      ag_world_destroy(&world);
+      world = new_world;
+    }
+
+    BeginDrawing();
+    ClearBackground(BLACK);
+    ag_world_render(&world);
+    EndDrawing();
+    WaitTime(TICK_TIME_DELTA);
+
+    if (ag_world_is_done(&world)) {
+      should_close = true;
+    }
+  }
+
+  ag_world_destroy(&world);
+  CloseWindow();
 }
 
 void _on_agent_tick(Agent *agent, const World *world) {
+  UNUSED(world);
   ag_agent_randomise_direction(agent);
   ag_agent_move_forward(agent, 1);
 }
 
-void _on_patch_tick(Agent *patch, const World *world) {
+void _on_patch_tick(Patch *patch, const World *world) {
+  UNUSED(world);
   if (patch->properties[AG_PATCH_HAS_GREEN]) {
     return;
   }
@@ -23,18 +73,31 @@ void _on_patch_tick(Agent *patch, const World *world) {
   }
 }
 
-int main(void) {
-  srand(time(0));
+void ag_patch_render(const Patch patch) {
+  int x = (int)(patch.position.x * PATCH_LENGTH);
+  int y = (int)(patch.position.y * PATCH_LENGTH);
+  Color color = (patch.properties[AG_PATCH_HAS_GREEN]) ? GREEN : BROWN;
+  DrawRectangle(x, y, PATCH_LENGTH, PATCH_LENGTH, color);
+}
 
-  World world = ag_world_new();
-  ag_world_spawn_agents(&world, 2, NULL);
+void _on_agent_setup(Agent *agent, const World *world) {
+  UNUSED(world);
+  ag_agent_randomise_position(agent, SCREEN_WIDTH, SCREEN_HEIGHT);
+}
 
-  for (size_t tick = 0; tick <= 100; tick++) {
-    World new_world = ag_world_tick(&world, _on_agent_tick, _on_patch_tick);
-    ag_world_destroy(&world);
-    world = new_world;
+void ag_agent_render(const Agent agent) {
+  const int x = int_mod((int)(agent.position.x * PATCH_LENGTH), SCREEN_WIDTH);
+  const int y = int_mod((int)(agent.position.y * PATCH_LENGTH), SCREEN_HEIGHT);
+  DrawCircle(x, y, 2, WHITE);
+}
+
+void ag_world_render(const World *world) {
+  for (size_t index = 0; index < world->patches.count; index++) {
+    Patch patch = world->patches.as[index];
+    ag_patch_render(patch);
   }
-
-  ag_agent_group_perform(&world.agents, &world, _print_agent_position);
-  ag_world_destroy(&world);
+  for (size_t index = 0; index < world->agents.count; index++) {
+    Agent agent = world->agents.as[index];
+    ag_agent_render(agent);
+  }
 }
