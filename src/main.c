@@ -16,11 +16,14 @@
 #include "tools.c"
 #include "world.c"
 
+#define PATCH_LENGTH 40
+#define WORLD_WIDTH (PATCH_LENGTH * AG_WORLD_WIDTH)
+#define WORLD_HEIGHT WORLD_WIDTH
+
 #define TARGET_FPS 60
 #define TOOLBAR_HEIGHT 60.0
-#define PATCH_LENGTH 40
-#define SCREEN_WIDTH (PATCH_LENGTH * AG_WORLD_WIDTH)
-#define SCREEN_HEIGHT (TOOLBAR_HEIGHT + (PATCH_LENGTH * AG_WORLD_HEIGHT))
+#define WINDOW_WIDTH WORLD_WIDTH
+#define WINDOW_HEIGHT (TOOLBAR_HEIGHT + WORLD_HEIGHT)
 
 void ag_world_render(const World *world);
 void ag_toolbar_render(Config *config);
@@ -31,8 +34,10 @@ void _on_patch_tick(Patch *patch, const World *world);
 int main(void) {
   srand(time(0));
 
-  InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Agents");
+  InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Agents");
   SetTargetFPS(TARGET_FPS);
+  RenderTexture world_render_texture =
+      LoadRenderTexture(WORLD_WIDTH, WORLD_HEIGHT);
 
   Config config = {.ticks_per_second = TARGET_FPS / 2};
   World world = ag_world_new();
@@ -51,10 +56,16 @@ int main(void) {
       world = new_world;
     }
 
+    // Render world into texture
+    BeginTextureMode(world_render_texture);
+    ag_world_render(&world);
+    EndTextureMode();
+
+    // Render whole window
     BeginDrawing();
     ClearBackground(BLACK);
     ag_toolbar_render(&config);
-    ag_world_render(&world);
+    DrawTexture(world_render_texture.texture, 0, TOOLBAR_HEIGHT, WHITE);
     EndDrawing();
 
     if (ag_world_is_done(&world)) {
@@ -63,12 +74,13 @@ int main(void) {
   }
 
   ag_world_destroy(&world);
+  UnloadRenderTexture(world_render_texture);
   CloseWindow();
 }
 
 void _on_agent_setup(Agent *agent, const World *world) {
   UNUSED(world);
-  ag_agent_randomise_position(agent, SCREEN_WIDTH, SCREEN_HEIGHT);
+  ag_agent_randomise_position(agent, AG_WORLD_WIDTH, AG_WORLD_HEIGHT);
 }
 
 void _on_agent_tick(Agent *agent, const World *world) {
@@ -89,15 +101,14 @@ void _on_patch_tick(Patch *patch, const World *world) {
 
 void ag_patch_render(const Patch patch) {
   int x = (int)(patch.position.x * PATCH_LENGTH);
-  int y = (int)(patch.position.y * PATCH_LENGTH) + TOOLBAR_HEIGHT;
+  int y = (int)(patch.position.y * PATCH_LENGTH);
   Color color = (patch.properties[AG_PATCH_HAS_GREEN]) ? GREEN : BROWN;
   DrawRectangle(x, y, PATCH_LENGTH, PATCH_LENGTH, color);
 }
 
 void ag_agent_render(const Agent agent) {
-  const int x = int_mod((int)(agent.position.x * PATCH_LENGTH), SCREEN_WIDTH);
-  const int y = int_mod((int)(agent.position.y * PATCH_LENGTH), SCREEN_HEIGHT) +
-                TOOLBAR_HEIGHT;
+  const int x = int_mod((int)(agent.position.x * PATCH_LENGTH), WORLD_WIDTH);
+  const int y = int_mod((int)(agent.position.y * PATCH_LENGTH), WORLD_HEIGHT);
   DrawCircle(x, y, 2, WHITE);
 }
 
@@ -113,7 +124,7 @@ void ag_world_render(const World *world) {
 }
 
 void ag_toolbar_render(Config *config) {
-  GuiPanel((Rectangle){.width = SCREEN_WIDTH, .height = TOOLBAR_HEIGHT}, NULL);
+  GuiPanel((Rectangle){.width = WINDOW_WIDTH, .height = TOOLBAR_HEIGHT}, NULL);
   {
     Rectangle rec = {.x = 20, .y = 20, .width = 60, .height = 20};
     config->running = GuiToggle(rec, "Go", config->running);
@@ -121,7 +132,7 @@ void ag_toolbar_render(Config *config) {
   {
     float tps = (float)config->ticks_per_second;
     Rectangle rec = {.x = 100, .y = 20, .width = 100, .height = 20};
-    config->ticks_per_second = (size_t)GuiSlider(rec, NULL, NULL, tps, 1, 60);
+    config->ticks_per_second = GuiSlider(rec, NULL, NULL, tps, 1, TARGET_FPS);
   }
   {
     double height = 20;
