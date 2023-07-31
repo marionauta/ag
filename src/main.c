@@ -58,7 +58,7 @@ int main(void) {
     EndDrawing();
 
     if (ag_world_is_done(&world)) {
-      // should_close = true;
+      config.running = false;
     }
   }
 
@@ -115,15 +115,19 @@ void ag_world_render(const World *world) {
 void ag_toolbar_render(Config *config) {
   GuiPanel((Rectangle){.width = SCREEN_WIDTH, .height = TOOLBAR_HEIGHT}, NULL);
   {
+    Rectangle rec = {.x = 20, .y = 20, .width = 60, .height = 20};
+    config->running = GuiToggle(rec, "Go", config->running);
+  }
+  {
     float tps = (float)config->ticks_per_second;
-    Rectangle rec = {.x = 20, .y = 20, .width = 100, .height = 20};
-    config->ticks_per_second = (size_t)GuiSlider(rec, NULL, NULL, tps, 0, 60);
+    Rectangle rec = {.x = 100, .y = 20, .width = 100, .height = 20};
+    config->ticks_per_second = (size_t)GuiSlider(rec, NULL, NULL, tps, 1, 60);
   }
   {
     double height = 20;
     char label_text[50];
     sprintf(label_text, "Ticks per second: %zu", config->ticks_per_second);
-    Rectangle rec = {.x = 130,
+    Rectangle rec = {.x = 205,
                      .y = (TOOLBAR_HEIGHT - height) / 2,
                      .width = 200,
                      .height = height};
