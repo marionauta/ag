@@ -7,7 +7,6 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
 #pragma clang diagnostic ignored "-Wextra"
-#define RAYGUI_NO_ICONS
 #define RAYGUI_IMPLEMENTATION
 #include "vendor/raygui.h"
 #pragma clang diagnostic pop
@@ -25,8 +24,9 @@
 #define WINDOW_WIDTH WORLD_WIDTH
 #define WINDOW_HEIGHT (TOOLBAR_HEIGHT + WORLD_HEIGHT)
 
+void ag_world_setup(World *world);
 void ag_world_render(const World *world);
-void ag_toolbar_render(Config *config);
+void ag_toolbar_render(Config *config, World *world);
 void _on_agent_setup(Agent *agent, const World *world);
 void _on_agent_tick(Agent *agent, const World *world);
 void _on_patch_tick(Patch *patch, const World *world);
@@ -40,8 +40,8 @@ int main(void) {
       LoadRenderTexture(WORLD_WIDTH, WORLD_HEIGHT);
 
   Config config = {.ticks_per_second = TARGET_FPS / 2};
-  World world = ag_world_new();
-  ag_world_spawn_agents(&world, 1000, _on_agent_setup);
+  World world = {0};
+  ag_world_setup(&world);
   float seconds_since_tick = 0;
 
   bool should_close = false;
@@ -64,8 +64,8 @@ int main(void) {
     // Render whole window
     BeginDrawing();
     ClearBackground(BLACK);
-    ag_toolbar_render(&config);
     DrawTexture(world_render_texture.texture, 0, TOOLBAR_HEIGHT, WHITE);
+    ag_toolbar_render(&config, &world);
     EndDrawing();
 
     if (ag_world_is_done(&world)) {
@@ -76,6 +76,15 @@ int main(void) {
   ag_world_destroy(&world);
   UnloadRenderTexture(world_render_texture);
   CloseWindow();
+}
+
+void ag_world_setup(World *world) {
+  if (world == NULL) {
+    return;
+  }
+  ag_world_destroy(world);
+  *world = ag_world_new();
+  ag_world_spawn_agents(world, 1000, _on_agent_setup);
 }
 
 void _on_agent_setup(Agent *agent, const World *world) {
@@ -123,25 +132,28 @@ void ag_world_render(const World *world) {
   }
 }
 
-void ag_toolbar_render(Config *config) {
+void ag_toolbar_render(Config *config, World *world) {
   GuiPanel((Rectangle){.width = WINDOW_WIDTH, .height = TOOLBAR_HEIGHT}, NULL);
   {
-    Rectangle rec = {.x = 20, .y = 20, .width = 60, .height = 20};
-    config->running = GuiToggle(rec, "Go", config->running);
+    Rectangle rec = {.x = 20, .y = 20, .width = 80, .height = 20};
+    if (GuiButton(rec, GuiIconText(ICON_RESTART, "Setup"))) {
+      ag_world_setup(world);
+    }
   }
   {
-    float tps = (float)config->ticks_per_second;
-    Rectangle rec = {.x = 100, .y = 20, .width = 100, .height = 20};
-    config->ticks_per_second = GuiSlider(rec, NULL, NULL, tps, 1, TARGET_FPS);
+    Rectangle rec = {.x = 110, .y = 20, .width = 60, .height = 20};
+    config->running = GuiToggle(rec, "Go", config->running);
   }
   {
     double height = 20;
     char label_text[50];
     sprintf(label_text, "Ticks per second: %zu", config->ticks_per_second);
-    Rectangle rec = {.x = 205,
-                     .y = (TOOLBAR_HEIGHT - height) / 2,
-                     .width = 200,
-                     .height = height};
+    Rectangle rec = {.x = 180, .y = 8, .width = 200, .height = height};
     GuiLabel(rec, label_text);
+  }
+  {
+    float tps = (float)config->ticks_per_second;
+    Rectangle rec = {.x = 180, .y = 25, .width = 150, .height = 15};
+    config->ticks_per_second = GuiSlider(rec, NULL, NULL, tps, 1, TARGET_FPS);
   }
 }
