@@ -12,6 +12,7 @@
 #pragma clang diagnostic pop
 
 #include "config.c"
+#include "lua.c"
 #include "tools.c"
 #include "world.c"
 
@@ -31,10 +32,17 @@ void _on_agent_setup(Agent *agent, const World *world);
 void _on_agent_tick(Agent *agent, const World *world);
 void _on_patch_tick(Patch *patch, const World *world);
 
-int main(void) {
+int main(int argc, char **argv) {
   srand(time(0));
 
   InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Agents");
+
+  lua_State *L = NULL;
+  if (argc > 1) {
+    L = ag_lua_state_from_file(argv[1]);
+  }
+  ag_configure_window_title(L);
+
   SetTargetFPS(TARGET_FPS);
   RenderTexture world_render_texture =
       LoadRenderTexture(WORLD_WIDTH, WORLD_HEIGHT);
@@ -75,6 +83,7 @@ int main(void) {
 
   ag_world_destroy(&world);
   UnloadRenderTexture(world_render_texture);
+  ag_lua_state_close(L);
   CloseWindow();
 }
 

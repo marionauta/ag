@@ -1,3 +1,4 @@
 CompileFlags:
   Add:
     - "-I/opt/homebrew/Cellar/raylib/4.5.0/include"
+    - "-I/opt/homebrew/Cellar/luajit/2.1.0-beta3-20230712.2/include/luajit-2.1"

@@ -11,7 +11,7 @@ clean:
 
 out/ag: src/main.c $(COMMON_SOURCES)
 	mkdir -p out
-	cc $(CFLAGS) -o $@ $< `pkg-config --libs --cflags raylib` -lm
+	cc $(CFLAGS) -o $@ $< `pkg-config --libs --cflags raylib` `pkg-config --libs --cflags luajit` -lm
 
 src/vendor/raygui.h:
 	mkdir -p out

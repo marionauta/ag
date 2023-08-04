@@ -16,5 +16,5 @@ Simple implementation of agent-based models in C, with graphic representation us
 
 ```console
 $ make
-$ out/ag
+$ out/ag examples/test.lua
 ```
