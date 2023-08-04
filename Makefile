@@ -12,3 +12,9 @@ clean:
 out/ag: src/main.c $(COMMON_SOURCES)
 	mkdir -p out
 	cc $(CFLAGS) -o $@ $< `pkg-config --libs --cflags raylib` -lm
+
+src/vendor/raygui.h:
+	mkdir -p out
+	curl -Lo out/raygui.zip https://github.com/raysan5/raygui/archive/refs/tags/3.6.zip
+	mkdir -p src/vendor
+	unzip -p out/raygui.zip raygui-3.6/src/raygui.h > $@
