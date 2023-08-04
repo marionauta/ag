@@ -18,6 +18,8 @@ World ag_world_new(void);
 World ag_world_copy(const World *world);
 void ag_world_destroy(World *world);
 void ag_world_spawn_agents(World *world, size_t count, const AgentUpdate setup);
+void ag_world_kill_agent(World *world, const Agent *agent);
+void ag_world_kill_agent_at(World *world, const size_t index_to_kill);
 World ag_world_tick(const World *world, const AgentUpdate agent_update,
                     const AgentUpdate patch_update);
 bool ag_world_is_done(const World *world);
@@ -55,6 +57,14 @@ void ag_world_spawn_agents(World *world, size_t count,
   for (size_t index = 0; index < count; index++) {
     setup(&agents[index], world);
   }
+}
+
+void ag_world_kill_agent(World *world, const Agent *agent) {
+  ag_agent_group_kill(&world->agents, agent);
+}
+
+void ag_world_kill_agent_at(World *world, const size_t index_to_kill) {
+  ag_agent_group_kill_at(&world->agents, index_to_kill);
 }
 
 World ag_world_tick(const World *world, const AgentUpdate agent_update,

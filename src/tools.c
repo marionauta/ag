@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 
-#define UNUSED(x) ((void)sizeof((void)(x), 0))
+#define UNUSED(x) ((void)(x))
 
 double double_random(const double max);
 int int_mod(const int a, const int b);
