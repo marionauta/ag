@@ -1,6 +1,6 @@
 CFLAGS := -std=c11 -pedantic -Wall -Wextra
-MAINS := $(wildcard src/main*.c)
-COMMON_SOURCES := $(filter-out $(MAINS), $(wildcard src/*.c))
+SOURCES := $(wildcard src/*.c)
+OBJS := $(patsubst src/%.c,out/%.o,$(SOURCES))
 
 .PHONY: all
 all: out/ag
@@ -9,12 +9,17 @@ all: out/ag
 clean:
 	rm -rf out
 
-out/ag: src/main.c $(COMMON_SOURCES)
-	mkdir -p out
-	cc $(CFLAGS) -o $@ $< `pkg-config --libs --cflags raylib` -lm
+out/ag: $(OBJS)
+	mkdir -p out && cc $(CFLAGS) -o $@ $^ `pkg-config --libs raylib` -lm
 
 src/vendor/raygui.h:
 	mkdir -p out
 	curl -Lo out/raygui.zip https://github.com/raysan5/raygui/archive/refs/tags/3.6.zip
 	mkdir -p src/vendor
 	unzip -p out/raygui.zip raygui-3.6/src/raygui.h > $@
+
+out/main.o: src/main.c
+	mkdir -p out && cc $(CFLAGS) -c -o $@ $< `pkg-config --cflags raylib`
+
+out/%.o: src/%.c
+	mkdir -p out && cc $(CFLAGS) -DAG_$(basename $(notdir $<))_IMPLEMENTATION -c -o $@ $<

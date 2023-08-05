@@ -8,10 +8,13 @@
 double double_random(const double max);
 int int_mod(const int a, const int b);
 
+#ifdef AG_tools_IMPLEMENTATION
+
 double double_random(const double max) {
   return (rand() > RAND_MAX / 2 ? -1 : 1) * (max / RAND_MAX) * rand();
 }
 
 int int_mod(const int a, const int b) { return ((a % b) + b) % b; }
 
+#endif // AG_tools_IMPLEMENTATION
 #endif // __AG_TOOLS__

@@ -28,6 +28,8 @@ void ag_agent_move_direction(Agent *agent, const Vec2 direction);
 void ag_agent_move_forward(Agent *agent, const double amount);
 bool ag_agent_is_alive(const Agent *agent);
 
+#ifdef AG_agent_IMPLEMENTATION
+
 Agent ag_agent_new(void) {
   Agent agent = {
       .position = ag_vec2_origin(),
@@ -63,4 +65,5 @@ bool ag_agent_is_alive(const Agent *agent) {
   return agent->properties[AG_AGENT_IS_ALIVE] > 0;
 }
 
+#endif // AG_agent_IMPLEMENTATION
 #endif // __AG_AGENT__

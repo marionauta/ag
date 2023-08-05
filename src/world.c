@@ -24,6 +24,8 @@ World ag_world_tick(const World *world, const AgentUpdate agent_update,
                     const AgentUpdate patch_update);
 bool ag_world_is_done(const World *world);
 
+#ifdef AG_world_IMPLEMENTATION
+
 void _setup_patches(AgentGroup *group);
 
 World ag_world_new(void) {
@@ -98,4 +100,5 @@ void _setup_patches(AgentGroup *group) {
   }
 }
 
+#endif // AG_world_IMPLEMENTATION
 #endif // __AG_WORLD__

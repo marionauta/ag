@@ -15,6 +15,8 @@ double ag_vec2_length(const Vec2 *vector);
 void ag_vec2_normalise(Vec2 *vector);
 Vec2 ag_vec2_normalised(Vec2 vector);
 
+#ifdef AG_vec2_IMPLEMENTATION
+
 Vec2 ag_vec2_origin(void) { return (Vec2){.x = 0, .y = 0}; }
 
 Vec2 ag_vec2_random(const double max_x, const double max_y) {
@@ -39,4 +41,5 @@ Vec2 ag_vec2_normalised(Vec2 vector) {
   return vector;
 }
 
+#endif // AG_vec2_IMPLEMENTATION
 #endif // __AG_VEC2__
