@@ -5,6 +5,10 @@ COMMON_SOURCES := $(filter-out $(MAINS), $(wildcard src/*.c))
 .PHONY: all
 all: out/ag
 
+.PHONY: run
+run: out/ag
+	./out/ag
+
 .PHONY: clean
 clean:
 	rm -rf out
