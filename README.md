@@ -1,6 +1,13 @@
-# Agent-based model in C
+# ag
 
-Simple implementation of agent-based models in C, with graphic representation using raylib. This is a project to learn more about C memory handling.
+Simple implementation of agent-based models in C, with graphic representation
+using raylib. This is a project to learn more about C memory handling.
+
+## Roadmap
+
+- [x] Graphical representation of the agents' state.
+- [x] Graphical toolbar to manage the simulation.
+- [ ] Scripting language to define the simulation.
 
 ## Dependencies
 
@@ -12,9 +19,13 @@ Simple implementation of agent-based models in C, with graphic representation us
     - Aditionally, you can run `make src/vendor/raygui.h` and it will download
       and extract it automatically.
 
-## Compile
+## Compile & run
 
 ```console
 $ make
-$ out/ag
+$ make run
 ```
+
+## References
+
+- [Agent-based model](https://en.wikipedia.org/wiki/Agent-based_model)
