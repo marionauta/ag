@@ -27,6 +27,7 @@
 void ag_world_setup(World *world);
 void ag_world_render(const World *world);
 void ag_toolbar_render(Config *config, World *world);
+void ag_window_handle_events(Config *config, World *world);
 void _on_agent_setup(Agent *agent, const World *world);
 void _on_agent_tick(Agent *agent, const World *world);
 void _on_patch_tick(Patch *patch, const World *world);
@@ -55,6 +56,9 @@ int main(void) {
       ag_world_destroy(&world);
       world = new_world;
     }
+
+    // Handle keyboard events
+    ag_window_handle_events(&config, &world);
 
     // Render world into texture
     BeginTextureMode(world_render_texture);
@@ -155,5 +159,14 @@ void ag_toolbar_render(Config *config, World *world) {
     float tps = (float)config->ticks_per_second;
     Rectangle rec = {.x = 180, .y = 25, .width = 150, .height = 15};
     config->ticks_per_second = GuiSlider(rec, NULL, NULL, tps, 1, TARGET_FPS);
+  }
+}
+
+void ag_window_handle_events(Config *config, World *world) {
+  if (IsKeyPressed(KEY_R)) {
+    ag_world_setup(world);
+  }
+  if (IsKeyPressed(KEY_ENTER)) {
+    config->running = !config->running;
   }
 }
