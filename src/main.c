@@ -1,15 +1,10 @@
-#include <raylib.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
-#pragma clang diagnostic ignored "-Wextra"
-#define RAYGUI_IMPLEMENTATION
-#include "vendor/raygui.h"
-#pragma clang diagnostic pop
+#include "raygui.h"
+#include "raylib.h"
 
 #include "config.c"
 #include "tools.c"
@@ -146,7 +141,7 @@ void ag_toolbar_render(Config *config, World *world) {
   }
   {
     Rectangle rec = {.x = 110, .y = 20, .width = 60, .height = 20};
-    config->running = GuiToggle(rec, "Go", config->running);
+    GuiToggle(rec, "Go", &config->running);
   }
   {
     double height = 20;
@@ -158,7 +153,9 @@ void ag_toolbar_render(Config *config, World *world) {
   {
     float tps = (float)config->ticks_per_second;
     Rectangle rec = {.x = 180, .y = 25, .width = 150, .height = 15};
-    config->ticks_per_second = GuiSlider(rec, NULL, NULL, tps, 1, TARGET_FPS);
+    int res = GuiSlider(rec, NULL, NULL, &tps, 1, TARGET_FPS);
+    printf("res = %d\n", res);
+    config->ticks_per_second = tps;
   }
 }
 

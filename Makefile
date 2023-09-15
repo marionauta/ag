@@ -13,12 +13,15 @@ run: out/ag
 clean:
 	rm -rf out
 
-out/ag: src/main.c $(COMMON_SOURCES)
+out/ag: src/main.c $(COMMON_SOURCES) vendor/raygui.o
 	mkdir -p out
-	cc $(CFLAGS) -o $@ $< `pkg-config --libs --cflags raylib` -lm
+	cc $(CFLAGS) -I./vendor -o $@ $< vendor/raygui.o `pkg-config --libs --cflags raylib` -lm
 
-src/vendor/raygui.h:
+vendor/raygui.o: vendor/raygui.h
+	cc -DRAYGUI_IMPLEMENTATION -x c -c -o $@ $< `pkg-config --cflags raylib`
+
+vendor/raygui.h:
 	mkdir -p out
-	curl -Lo out/raygui.zip https://github.com/raysan5/raygui/archive/refs/tags/3.6.zip
-	mkdir -p src/vendor
-	unzip -p out/raygui.zip raygui-3.6/src/raygui.h > $@
+	curl -Lo out/raygui.zip https://github.com/raysan5/raygui/archive/refs/tags/4.0.zip
+	mkdir -p vendor
+	unzip -p out/raygui.zip raygui-4.0/src/raygui.h > $@
