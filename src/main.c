@@ -135,7 +135,8 @@ void ag_toolbar_render(Config *config, World *world) {
   GuiPanel((Rectangle){.width = WINDOW_WIDTH, .height = TOOLBAR_HEIGHT}, NULL);
   {
     Rectangle rec = {.x = 20, .y = 20, .width = 80, .height = 20};
-    if (GuiButton(rec, GuiIconText(ICON_RESTART, "Setup"))) {
+    char *button_text = ag_world_is_new(world) ? "Restart" : "Setup";
+    if (GuiButton(rec, GuiIconText(ICON_RESTART, button_text))) {
       ag_world_setup(world);
     }
   }
@@ -153,8 +154,7 @@ void ag_toolbar_render(Config *config, World *world) {
   {
     float tps = (float)config->ticks_per_second;
     Rectangle rec = {.x = 180, .y = 25, .width = 150, .height = 15};
-    int res = GuiSlider(rec, NULL, NULL, &tps, 1, TARGET_FPS);
-    printf("res = %d\n", res);
+    GuiSlider(rec, NULL, NULL, &tps, 1, TARGET_FPS);
     config->ticks_per_second = tps;
   }
 }

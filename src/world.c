@@ -2,6 +2,7 @@
 #define __AG_WORLD__
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "agent_group.c"
 
@@ -12,6 +13,7 @@
 typedef struct World {
   AgentGroup agents;
   AgentGroup patches;
+  size_t ticks;
 } World;
 
 World ag_world_new(void);
@@ -23,6 +25,7 @@ void ag_world_kill_agent_at(World *world, const size_t index_to_kill);
 World ag_world_tick(const World *world, const AgentUpdate agent_update,
                     const AgentUpdate patch_update);
 bool ag_world_is_done(const World *world);
+bool ag_world_is_new(const World *world);
 
 void _setup_patches(AgentGroup *group);
 
@@ -72,6 +75,7 @@ World ag_world_tick(const World *world, const AgentUpdate agent_update,
   World new_world = ag_world_copy(world);
   ag_agent_group_perform(&new_world.agents, world, agent_update);
   ag_agent_group_perform(&new_world.patches, world, patch_update);
+  new_world.ticks += 1;
   return new_world;
 }
 
@@ -83,6 +87,8 @@ bool ag_world_is_done(const World *world) {
   }
   return true;
 }
+
+bool ag_world_is_new(const World *world) { return world->ticks == 0; }
 
 // Patches
 
