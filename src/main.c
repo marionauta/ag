@@ -6,7 +6,7 @@
 #include "raygui.h"
 #include "raylib.h"
 
-#include "config.c"
+#include "config.h"
 #include "tools.c"
 #include "world.c"
 

@@ -9,10 +9,6 @@ typedef struct Config {
   size_t ticks_per_second;
 } Config;
 
-bool ag_config_should_tick(Config *config);
-
-bool ag_config_should_tick(Config *config) {
-  return config->running && (config->ticks_per_second > 0);
-}
+bool ag_config_should_tick(const Config *config);
 
 #endif // __AG_CONFIG__

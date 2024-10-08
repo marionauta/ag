@@ -1,3 +1,4 @@
+CC = zig cc
 CFLAGS := -std=c11 -pedantic -Wall -Wextra
 MAINS := $(wildcard src/main*.c)
 COMMON_SOURCES := $(filter-out $(MAINS), $(wildcard src/*.c))
@@ -13,12 +14,18 @@ run: out/ag
 clean:
 	rm -rf out
 
-out/ag: src/main.c $(COMMON_SOURCES) vendor/raygui.o
+out/ag: src/main.c $(COMMON_SOURCES) vendor/raygui.o out/config.o
 	mkdir -p out
-	cc $(CFLAGS) -I./vendor -o $@ $< vendor/raygui.o `pkg-config --libs --cflags raylib` -lm
+	$(CC) $(CFLAGS) -I./vendor -o $@ $< vendor/raygui.o out/config.o `pkg-config --libs --cflags raylib` -lm
+
+out/config.o: src/config.zig
+	mkdir -p out
+	zig build-obj $<
+	mv config.o out/config.o
+	rm config.o.o
 
 vendor/raygui.o: vendor/raygui.h
-	cc -DRAYGUI_IMPLEMENTATION -x c -c -o $@ $< `pkg-config --cflags raylib`
+	$(CC) -DRAYGUI_IMPLEMENTATION -x c -c -o $@ $< `pkg-config --cflags raylib`
 
 vendor/raygui.h:
 	mkdir -p out
