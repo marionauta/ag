@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "tools.c"
+#include "tools.h"
 #include "vec2.c"
 
 typedef struct Agent {

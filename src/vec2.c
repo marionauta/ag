@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-#include "tools.c"
+#include "tools.h"
 
 typedef struct Vec2 {
   double x, y;

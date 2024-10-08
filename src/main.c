@@ -7,7 +7,7 @@
 #include "raylib.h"
 
 #include "config.h"
-#include "tools.c"
+#include "tools.h"
 #include "world.c"
 
 #define PATCH_LENGTH 40
