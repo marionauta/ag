@@ -1,4 +1,4 @@
-const tools = struct {
+pub const tools = struct {
     usingnamespace @import("tools.zig");
 };
 
@@ -26,26 +26,10 @@ pub const Vec2 = extern struct {
         self.x /= len;
         self.y /= len;
     }
+
+    pub fn normalised(self: Vec2) Vec2 {
+        var v = self;
+        v.normalise();
+        return v;
+    }
 };
-
-pub export fn ag_vec2_origin() Vec2 {
-    return Vec2.origin();
-}
-
-pub export fn ag_vec2_random(max_x: f64, max_y: f64) Vec2 {
-    return Vec2.random(max_x, max_y);
-}
-
-pub export fn ag_vec2_length(vector: *const Vec2) f64 {
-    return vector.length();
-}
-
-pub export fn ag_vec2_normalise(vector: *Vec2) void {
-    return vector.normalise();
-}
-
-pub export fn ag_vec2_normalised(vector: Vec2) Vec2 {
-    var v = vector;
-    v.normalise();
-    return v;
-}

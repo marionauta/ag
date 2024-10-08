@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "agent.c"
+#include "agent.h"
 
 #define AG_AGENT_GROUP_CAPACITY_CHUNKS 50
 

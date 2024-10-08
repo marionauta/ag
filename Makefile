@@ -14,9 +14,9 @@ run: out/ag
 clean:
 	rm -rf out
 
-out/ag: src/main.c $(COMMON_SOURCES) vendor/raygui.o out/config.o out/vec2.o
+out/ag: src/main.c $(COMMON_SOURCES) vendor/raygui.o out/config.o out/agent.o
 	mkdir -p out
-	$(CC) $(CFLAGS) -I./vendor -o $@ $< vendor/raygui.o out/config.o out/vec2.o `pkg-config --libs --cflags raylib` -lm
+	$(CC) $(CFLAGS) -I./vendor -o $@ $< vendor/raygui.o out/config.o out/agent.o `pkg-config --libs --cflags raylib` -lm
 
 out/config.o: src/config.zig
 	mkdir -p out
@@ -24,11 +24,11 @@ out/config.o: src/config.zig
 	mv config.o out/config.o
 	rm config.o.o
 
-out/vec2.o: src/vec2.zig
+out/agent.o: src/agent.zig
 	mkdir -p out
 	zig build-obj $<
-	mv vec2.o out/vec2.o
-	rm vec2.o.o
+	mv agent.o out/agent.o
+	rm agent.o.o
 
 vendor/raygui.o: vendor/raygui.h
 	$(CC) -DRAYGUI_IMPLEMENTATION -x c -c -o $@ $< `pkg-config --cflags raylib`
