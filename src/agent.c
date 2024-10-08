@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #include "tools.h"
-#include "vec2.c"
+#include "vec2.h"
 
 typedef struct Agent {
   Vec2 position;
