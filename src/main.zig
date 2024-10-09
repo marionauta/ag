@@ -29,13 +29,15 @@ pub fn main() void {
 
     rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Agents");
     defer rl.CloseWindow();
+    rl.SetTargetFPS(TARGET_FPS);
+    const world_render_texture = rl.LoadRenderTexture(WORLD_WIDTH, WORLS_HEIGHT);
+    defer rl.UnloadRenderTexture(world_render_texture);
 
     var config = ag.Config.new(10);
-    config.running = true;
+    config.running = true; // TODO: handle with events;
     var world = ag.World.new();
     defer world.destroy();
     ag_world_setup(&world);
-
     var seconds_since_tick: f64 = 0;
 
     const should_close = false;
@@ -54,10 +56,14 @@ pub fn main() void {
             config.running = false;
         }
 
+        rl.BeginTextureMode(world_render_texture);
+        ag_world_render(&world);
+        rl.EndTextureMode();
+
         rl.BeginDrawing();
         defer rl.EndDrawing();
         rl.ClearBackground(rl.BLACK);
-        ag_world_render(&world);
+        rl.DrawTexture(world_render_texture.texture, 0, 0, rl.WHITE);
     }
 }
 

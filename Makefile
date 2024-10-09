@@ -4,20 +4,18 @@ MAINS := $(wildcard src/main*.zig)
 COMMON_SOURCES := $(filter-out $(MAINS), $(wildcard src/*.zig))
 
 .PHONY: all
-all: out/ag
+all: out/bin/ag
 
 .PHONY: run
-run: out/ag
-	./out/ag
+run: out/bin/ag
+	./out/bin/ag
 
 .PHONY: clean
 clean:
 	rm -rf out
 
-out/ag: src/main.zig $(COMMON_SOURCES) vendor/raygui.o
-	mkdir -p out
-	zig build-exe --name ag $< vendor/raygui.o `pkg-config --libs --cflags raylib` -lm
-	mv ag out/ag
+out/bin/ag: src/main.zig $(COMMON_SOURCES) vendor/raygui.o
+	zig build --prefix out
 
 vendor/raygui.o: vendor/raygui.h
 	$(CC) -DRAYGUI_IMPLEMENTATION -x c -c -o $@ $< `pkg-config --cflags raylib`
