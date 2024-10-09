@@ -33,26 +33,36 @@ pub const Vec2 = struct {
         v.normalise();
         return v;
     }
+
+    pub fn times(self: Vec2, amount: f64) Vec2 {
+        return .{ .x = self.x * amount, .y = self.y * amount };
+    }
 };
 
 test "origin" {
     const v = Vec2.origin();
-    try expectEqual(v.x, 0);
-    try expectEqual(v.y, 0);
+    try expectEqual(0.0, v.x);
+    try expectEqual(0.0, v.y);
 }
 
 test "length" {
     const v1 = Vec2{ .x = 1, .y = 0 };
-    try expectEqual(v1.length(), 1.0);
+    try expectEqual(1.0, v1.length());
     const v2 = Vec2{ .x = 0, .y = 1 };
-    try expectEqual(v2.length(), 1.0);
+    try expectEqual(1.0, v2.length());
     const v3 = Vec2{ .x = 1, .y = 1 };
-    try expectEqual(v3.length(), @sqrt(2.0));
+    try expectEqual(@sqrt(2.0), v3.length());
     const v4 = Vec2{ .x = 3, .y = 4 };
-    try expectEqual(v4.length(), 5.0);
+    try expectEqual(5.0, v4.length());
 }
 
 test "normalised" {
     const v = Vec2.random(100, 100).normalised();
-    try expectEqual(v.length(), 1.0);
+    try expectEqual(1.0, v.length());
+}
+
+test "times" {
+    const v = Vec2.random(100, 100).normalised();
+    const t = v.times(2).times(4);
+    try expectEqual(8.0, t.length());
 }

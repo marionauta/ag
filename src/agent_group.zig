@@ -1,34 +1,51 @@
 const std = @import("std");
-pub const agent = @import("agent.zig");
+const Agent = @import("agent.zig").Agent;
 
-pub const AgentGroup = std.ArrayList(agent.Agent);
+pub const AgentGroup = struct {
+    list: std.ArrayList(Agent),
 
-pub fn ag_agent_group_new(allocator: std.mem.Allocator) AgentGroup {
-    return AgentGroup.init(allocator);
-}
+    pub fn init(allocator: std.mem.Allocator) AgentGroup {
+        return .{ .list = std.ArrayList(Agent).init(allocator) };
+    }
 
-pub fn ag_agent_group_copy(group: *const AgentGroup) AgentGroup {
-    const as = group.clone() catch AgentGroup.init(std.heap.c_allocator);
-    return as;
-}
+    pub fn items(self: AgentGroup) []Agent {
+        return self.list.items;
+    }
 
-pub export fn ag_agent_group_destroy(group: *AgentGroup) void {
-    group.clearRetainingCapacity();
-}
+    pub fn clone(self: AgentGroup) AgentGroup {
+        const list = self.list.clone() catch unreachable;
+        return .{ .list = list };
+    }
 
-pub fn spawn_count(self: *AgentGroup, count: usize) []agent.Agent {
-    return self.addManyAsSlice(count) catch unreachable;
-}
+    pub fn destroy(self: *AgentGroup) void {
+        self.list.clearAndFree();
+    }
 
-pub export fn ag_agent_group_kill(group: *AgentGroup, a: *const agent.Agent) void {
-    for (group.items, 0..) |element, index| {
-        if (&element == a) {
-            ag_agent_group_kill_at(group, index);
-            break;
+    pub fn spawn_count(self: *AgentGroup, count: usize) []Agent {
+        return self.list.addManyAsSlice(count) catch unreachable;
+    }
+
+    pub fn kill(self: *AgentGroup, agent: *const Agent) void {
+        for (self.items, 0..) |element, index| {
+            if (&element == agent) {
+                self.kill_at(index);
+                break;
+            }
         }
     }
-}
 
-pub export fn ag_agent_group_kill_at(group: *AgentGroup, index_to_kill: usize) void {
-    _ = group.orderedRemove(index_to_kill);
+    pub fn kill_at(self: *AgentGroup, index_to_kill: usize) void {
+        _ = self.orderedRemove(index_to_kill);
+    }
+};
+
+test "clone" {
+    var ag = AgentGroup.init(std.testing.allocator);
+    defer ag.destroy();
+    const as = ag.spawn_count(1);
+    as[0] = 42;
+    var cp = try ag.clone();
+    defer cp.destroy();
+    ag.list.items[0].properties[Agent.IS_ALIVE] = 0;
+    try std.testing.expectEqual(42, cp.list.items[0].properties[Agent.IS_ALIVE]);
 }

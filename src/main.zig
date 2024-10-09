@@ -111,10 +111,10 @@ fn agent_render(agent: ag.Agent) void {
 }
 
 fn ag_world_render(world: *const ag.World) void {
-    for (world.patches.items) |patch| {
+    for (world.patches.items()) |patch| {
         ag_patch_render(patch);
     }
-    for (world.agents.items) |agent| {
+    for (world.agents.items()) |agent| {
         agent_render(agent);
     }
 }
