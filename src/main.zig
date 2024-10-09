@@ -17,7 +17,7 @@ const ag = struct {
 };
 
 const PATCH_LENGTH = 40;
-const WORLD_WIDTH = PATCH_LENGTH * ag.AG_WORLD_WIDTH;
+const WORLD_WIDTH = PATCH_LENGTH * ag.World.WIDTH;
 const WORLS_HEIGHT = WORLD_WIDTH;
 
 const TARGET_FPS = 60;
@@ -33,11 +33,13 @@ pub fn main() void {
     const world_render_texture = rl.LoadRenderTexture(WORLD_WIDTH, WORLS_HEIGHT);
     defer rl.UnloadRenderTexture(world_render_texture);
 
+    const allocator = std.heap.page_allocator;
+
     var config = ag.Config.new(10);
     config.running = true; // TODO: handle with events;
-    var world = ag.World.new();
+    var world = ag.World.new(allocator);
     defer world.destroy();
-    ag_world_setup(&world);
+    ag_world_setup(&world, allocator);
     var seconds_since_tick: f64 = 0;
 
     const should_close = false;
@@ -67,26 +69,26 @@ pub fn main() void {
     }
 }
 
-fn ag_world_setup(world: *ag.World) void {
+fn ag_world_setup(world: *ag.World, allocator: std.mem.Allocator) void {
     world.destroy();
-    world.* = ag.World.new();
+    world.* = ag.World.new(allocator);
     world.spawn_agents(1000, on_agent_setup);
 }
 
 fn on_agent_setup(agent: *ag.Agent, world: *const ag.World) void {
     _ = world;
-    ag.ag_agent_randomise_position(agent, ag.AG_WORLD_WIDTH, ag.AG_WORLD_WIDTH);
+    agent.randomise_position(ag.World.WIDTH, ag.World.HEIGHT);
 }
 
 fn on_agent_tick(agent: *ag.Agent, world: *const ag.World) void {
     _ = world;
-    ag.ag_agent_randomise_direction(agent);
-    ag.ag_agent_move_forward(agent, 1);
+    agent.randomise_direction();
+    agent.move_forward(1);
 }
 
 fn on_patch_tick(patch: *ag.Patch, world: *const ag.World) void {
     _ = world;
-    if (ag.ag_agent_is_alive(patch)) {
+    if (patch.is_alive()) {
         return;
     }
     if (ag.double_random(100.0) < 0.03) {
@@ -97,7 +99,7 @@ fn on_patch_tick(patch: *ag.Patch, world: *const ag.World) void {
 fn ag_patch_render(patch: ag.Patch) void {
     const x = @as(c_int, @intFromFloat(patch.position.x * PATCH_LENGTH));
     const y = @as(c_int, @intFromFloat(patch.position.y * PATCH_LENGTH));
-    const color = if (ag.ag_agent_is_alive(&patch)) rl.GREEN else rl.BROWN;
+    const color = if (patch.is_alive()) rl.GREEN else rl.BROWN;
     rl.DrawRectangle(x, y, PATCH_LENGTH, PATCH_LENGTH, color);
 }
 

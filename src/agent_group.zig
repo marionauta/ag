@@ -3,8 +3,8 @@ pub const agent = @import("agent.zig");
 
 pub const AgentGroup = std.ArrayList(agent.Agent);
 
-pub fn ag_agent_group_new() AgentGroup {
-    return AgentGroup.init(std.heap.c_allocator);
+pub fn ag_agent_group_new(allocator: std.mem.Allocator) AgentGroup {
+    return AgentGroup.init(allocator);
 }
 
 pub fn ag_agent_group_copy(group: *const AgentGroup) AgentGroup {
@@ -13,7 +13,7 @@ pub fn ag_agent_group_copy(group: *const AgentGroup) AgentGroup {
 }
 
 pub export fn ag_agent_group_destroy(group: *AgentGroup) void {
-    group.clearAndFree();
+    group.clearRetainingCapacity();
 }
 
 pub fn spawn_count(self: *AgentGroup, count: usize) []agent.Agent {

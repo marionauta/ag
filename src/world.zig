@@ -1,24 +1,25 @@
+const std = @import("std");
 const ag = @import("agent_group.zig");
-
-pub const AG_WORLD_WIDTH = 16;
-pub const AG_WORLD_HEIGHT = AG_WORLD_WIDTH;
-pub const AG_PATCHES_COUNT = (AG_WORLD_WIDTH * AG_WORLD_HEIGHT);
 
 const Agent = ag.agent.Agent;
 pub const AgentUpdate = fn (*ag.agent.Agent, *const World) void;
 
 pub const World = struct {
+    pub const WIDTH = 16;
+    pub const HEIGHT = WIDTH;
+    pub const PATCHES_COUNT = (WIDTH * HEIGHT);
+
     agents: ag.AgentGroup,
     patches: ag.AgentGroup,
     ticks: usize,
 
-    pub fn new() World {
+    pub fn new(allocator: std.mem.Allocator) World {
         var world = World{
-            .agents = ag.ag_agent_group_new(),
-            .patches = ag.ag_agent_group_new(),
+            .agents = ag.ag_agent_group_new(allocator),
+            .patches = ag.ag_agent_group_new(allocator),
             .ticks = 0,
         };
-        _ = ag.spawn_count(&world.patches, AG_PATCHES_COUNT);
+        _ = ag.spawn_count(&world.patches, PATCHES_COUNT);
         _setup_patches(&world.patches);
         return world;
     }
@@ -74,9 +75,9 @@ pub const World = struct {
 };
 
 fn _setup_patches(group: *ag.AgentGroup) void {
-    for (0..AG_WORLD_WIDTH) |col| {
-        for (0..AG_WORLD_HEIGHT) |row| {
-            const index = row * AG_WORLD_WIDTH + col;
+    for (0..World.WIDTH) |col| {
+        for (0..World.HEIGHT) |row| {
+            const index = row * World.WIDTH + col;
             const patch = &group.items[index];
             patch.position.x = @floatFromInt(col);
             patch.position.y = @floatFromInt(row);
