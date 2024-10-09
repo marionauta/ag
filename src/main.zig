@@ -98,7 +98,7 @@ fn on_patch_tick(patch: *ag.Patch, world: *const ag.World) void {
     if (patch.is_alive()) {
         return;
     }
-    if (ag.double_random(100.0) < 3.0) {
+    if (@mod(c.rand(), 100) < 3) {
         patch.properties[ag.Patch.HAS_GREEN] = 1;
     }
 }
