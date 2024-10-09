@@ -10,12 +10,11 @@ const rl = @cImport({
 });
 
 const ag = struct {
+    usingnamespace @import("agent.zig");
     usingnamespace @import("config.zig");
-    usingnamespace @cImport({
-        @cInclude("world.c");
-    });
+    usingnamespace @import("world.zig");
+    usingnamespace @import("tools.zig");
 };
-// const AG_WORLD_WIDTH = 16;
 
 const PATCH_LENGTH = 40;
 const WORLD_WIDTH = PATCH_LENGTH * ag.AG_WORLD_WIDTH;
@@ -33,8 +32,8 @@ pub fn main() void {
 
     var config = ag.Config.new(10);
     config.running = true;
-    var world = ag.World{};
-    defer ag.ag_world_destroy(&world);
+    var world = ag.World.new();
+    defer world.destroy();
     ag_world_setup(&world);
 
     var seconds_since_tick: f64 = 0;
@@ -46,12 +45,12 @@ pub fn main() void {
         const should_tick = seconds_since_tick > tick_time_delta;
         if (config.should_tick() and should_tick) {
             seconds_since_tick = 0;
-            const new_world = ag.ag_world_tick(&world, on_agent_tick, on_patch_tick);
-            ag.ag_world_destroy(&world);
+            const new_world = world.tick(on_agent_tick, on_patch_tick);
+            world.destroy();
             world = new_world;
         }
 
-        if (ag.ag_world_is_done(&world)) {
+        if (world.is_done()) {
             config.running = false;
         }
 
@@ -63,29 +62,29 @@ pub fn main() void {
 }
 
 fn ag_world_setup(world: *ag.World) void {
-    ag.ag_world_destroy(world);
-    world.* = ag.ag_world_new();
-    ag.ag_world_spawn_agents(world, 1000, on_agent_setup);
+    world.destroy();
+    world.* = ag.World.new();
+    world.spawn_agents(1000, on_agent_setup);
 }
 
-export fn on_agent_setup(agent: ?*ag.Agent, world: ?*const ag.World) void {
+fn on_agent_setup(agent: *ag.Agent, world: *const ag.World) void {
     _ = world;
     ag.ag_agent_randomise_position(agent, ag.AG_WORLD_WIDTH, ag.AG_WORLD_WIDTH);
 }
 
-export fn on_agent_tick(agent: ?*ag.Agent, world: ?*const ag.World) void {
+fn on_agent_tick(agent: *ag.Agent, world: *const ag.World) void {
     _ = world;
     ag.ag_agent_randomise_direction(agent);
     ag.ag_agent_move_forward(agent, 1);
 }
 
-export fn on_patch_tick(patch: ?*ag.Patch, world: ?*const ag.World) void {
+fn on_patch_tick(patch: *ag.Patch, world: *const ag.World) void {
     _ = world;
     if (ag.ag_agent_is_alive(patch)) {
         return;
     }
     if (ag.double_random(100.0) < 0.03) {
-        patch.?.properties[ag.AG_PATCH_HAS_GREEN] = 1;
+        patch.properties[ag.AG_PATCH_HAS_GREEN] = 1;
     }
 }
 
@@ -103,12 +102,10 @@ fn agent_render(agent: ag.Agent) void {
 }
 
 fn ag_world_render(world: *const ag.World) void {
-    for (0..world.patches.count) |index| {
-        const patch = world.patches.as[index];
+    for (world.patches.items) |patch| {
         ag_patch_render(patch);
     }
-    for (0..world.agents.count) |index| {
-        const agent = world.agents.as[index];
+    for (world.agents.items) |agent| {
         agent_render(agent);
     }
 }
