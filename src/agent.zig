@@ -1,10 +1,10 @@
 const vec2 = @import("vec2.zig");
 const tools = vec2.tools;
 
-pub const AG_AGENT_IS_ALIVE = 0;
-pub const AG_PATCH_HAS_GREEN = 0;
-
 pub const Agent = struct {
+    pub const IS_ALIVE = 0;
+    pub const HAS_GREEN = IS_ALIVE;
+
     position: vec2.Vec2,
     direction: vec2.Vec2,
     properties: [10]i32,
@@ -37,7 +37,7 @@ pub const Agent = struct {
     }
 
     pub fn is_alive(self: *const Agent) bool {
-        return self.properties[AG_AGENT_IS_ALIVE] > 0;
+        return self.properties[IS_ALIVE] > 0;
     }
 };
 

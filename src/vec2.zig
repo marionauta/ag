@@ -2,7 +2,7 @@ pub const tools = struct {
     usingnamespace @import("tools.zig");
 };
 
-pub const Vec2 = extern struct {
+pub const Vec2 = struct {
     x: f64,
     y: f64,
 

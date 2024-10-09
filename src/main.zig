@@ -36,7 +36,6 @@ pub fn main() void {
     const allocator = std.heap.page_allocator;
 
     var config = ag.Config.new(10);
-    config.running = true; // TODO: handle with events;
     var world = ag.World.new(allocator);
     defer world.destroy();
     ag_world_setup(&world, allocator);
@@ -53,6 +52,8 @@ pub fn main() void {
             world.destroy();
             world = new_world;
         }
+
+        window_handle_events(&config, &world, allocator);
 
         if (world.is_done()) {
             config.running = false;
@@ -92,7 +93,7 @@ fn on_patch_tick(patch: *ag.Patch, world: *const ag.World) void {
         return;
     }
     if (ag.double_random(100.0) < 0.03) {
-        patch.properties[ag.AG_PATCH_HAS_GREEN] = 1;
+        patch.properties[ag.Patch.HAS_GREEN] = 1;
     }
 }
 
@@ -115,5 +116,14 @@ fn ag_world_render(world: *const ag.World) void {
     }
     for (world.agents.items) |agent| {
         agent_render(agent);
+    }
+}
+
+fn window_handle_events(config: *ag.Config, world: *ag.World, allocator: std.mem.Allocator) void {
+    if (rl.IsKeyPressed(rl.KEY_R)) {
+        ag_world_setup(world, allocator);
+    }
+    if (rl.IsKeyPressed(rl.KEY_ENTER)) {
+        config.running = !config.running;
     }
 }
