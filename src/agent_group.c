@@ -28,6 +28,8 @@ void ag_agent_group_kill_at(AgentGroup *group, const size_t index_to_kill);
 void ag_agent_group_perform(AgentGroup *group, const World *world,
                             const AgentUpdate update);
 
+#ifdef AGENT_GROUP_IMPLEMENTATION
+
 AgentGroup ag_agent_group_new(void) {
   return (AgentGroup){
       .as = NULL,
@@ -103,5 +105,7 @@ void ag_agent_group_perform(AgentGroup *group, const World *world,
     update(&group->as[index], world);
   }
 }
+
+#endif // AGENT_GROUP_IMPLEMENTATION
 
 #endif // __AG_AGENT_GROUP__
