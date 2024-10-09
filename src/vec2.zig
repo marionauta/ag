@@ -1,6 +1,7 @@
-pub const tools = struct {
-    usingnamespace @import("tools.zig");
-};
+const std = @import("std");
+const expectEqual = std.testing.expectEqual;
+
+pub const tools = @import("tools.zig");
 
 pub const Vec2 = struct {
     x: f64,
@@ -33,3 +34,25 @@ pub const Vec2 = struct {
         return v;
     }
 };
+
+test "origin" {
+    const v = Vec2.origin();
+    try expectEqual(v.x, 0);
+    try expectEqual(v.y, 0);
+}
+
+test "length" {
+    const v1 = Vec2{ .x = 1, .y = 0 };
+    try expectEqual(v1.length(), 1.0);
+    const v2 = Vec2{ .x = 0, .y = 1 };
+    try expectEqual(v2.length(), 1.0);
+    const v3 = Vec2{ .x = 1, .y = 1 };
+    try expectEqual(v3.length(), @sqrt(2.0));
+    const v4 = Vec2{ .x = 3, .y = 4 };
+    try expectEqual(v4.length(), 5.0);
+}
+
+test "normalised" {
+    const v = Vec2.random(100, 100).normalised();
+    try expectEqual(v.length(), 1.0);
+}
