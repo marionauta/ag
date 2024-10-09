@@ -52,25 +52,29 @@ pub const World = struct {
         self.agents.ag_agent_group_kill_at(index_to_kill);
     }
 
-    pub fn tick(self: *const World, agent_update: AgentUpdate, patch_update: AgentUpdate) World {
+    pub fn tick(self: World, agent_update: AgentUpdate, patch_update: AgentUpdate) World {
         var new_world = self.copy();
         for (new_world.agents.items()) |*agent| {
-            agent_update(agent, self);
+            agent_update(agent, &self);
         }
         for (new_world.patches.items()) |*patch| {
-            patch_update(patch, self);
+            patch_update(patch, &self);
         }
         new_world.ticks += 1;
         return new_world;
     }
 
-    pub fn is_done(self: *World) bool {
+    pub fn is_done(self: World) bool {
         for (self.patches.items()) |patch| {
             if (!patch.is_alive()) {
                 return false;
             }
         }
         return true;
+    }
+
+    pub fn is_new(self: World) bool {
+        return self.ticks == 0;
     }
 };
 

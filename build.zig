@@ -11,8 +11,13 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+    // raylib
     exe.addIncludePath(.{ .cwd_relative = "/opt/homebrew/opt/raylib/include/" });
     exe.linkSystemLibrary("raylib");
+
+    // raygui
+    exe.addIncludePath(b.path("vendor"));
+    exe.addCSourceFile(.{ .file = b.path("vendor/raygui.o") });
 
     b.installArtifact(exe);
 

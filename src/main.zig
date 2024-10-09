@@ -9,6 +9,10 @@ const rl = @cImport({
     @cInclude("raylib.h");
 });
 
+const rg = @cImport({
+    @cInclude("raygui.h");
+});
+
 const ag = struct {
     usingnamespace @import("agent.zig");
     usingnamespace @import("config.zig");
@@ -18,11 +22,12 @@ const ag = struct {
 
 const PATCH_LENGTH = 40;
 const WORLD_WIDTH = PATCH_LENGTH * ag.World.WIDTH;
-const WORLS_HEIGHT = WORLD_WIDTH;
+const WORLD_HEIGHT = WORLD_WIDTH;
 
 const TARGET_FPS = 60;
+const TOOLBAR_HEIGHT = 60.0;
 const WINDOW_WIDTH = WORLD_WIDTH;
-const WINDOW_HEIGHT = WORLS_HEIGHT;
+const WINDOW_HEIGHT = WORLD_HEIGHT + TOOLBAR_HEIGHT;
 
 pub fn main() void {
     c.srand(@truncate(@as(u64, @bitCast(c.time(0)))));
@@ -30,12 +35,12 @@ pub fn main() void {
     rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Agents");
     defer rl.CloseWindow();
     rl.SetTargetFPS(TARGET_FPS);
-    const world_render_texture = rl.LoadRenderTexture(WORLD_WIDTH, WORLS_HEIGHT);
+    const world_render_texture = rl.LoadRenderTexture(WORLD_WIDTH, WORLD_HEIGHT);
     defer rl.UnloadRenderTexture(world_render_texture);
 
     const allocator = std.heap.page_allocator;
 
-    var config = ag.Config.new(10);
+    var config = ag.Config.new(TARGET_FPS / 2);
     var world = ag.World.new(allocator);
     defer world.destroy();
     ag_world_setup(&world, allocator);
@@ -66,7 +71,8 @@ pub fn main() void {
         rl.BeginDrawing();
         defer rl.EndDrawing();
         rl.ClearBackground(rl.BLACK);
-        rl.DrawTexture(world_render_texture.texture, 0, 0, rl.WHITE);
+        rl.DrawTexture(world_render_texture.texture, 0, TOOLBAR_HEIGHT, rl.WHITE);
+        ag_toolbar_render(&config, &world, allocator);
     }
 }
 
@@ -92,7 +98,7 @@ fn on_patch_tick(patch: *ag.Patch, world: *const ag.World) void {
     if (patch.is_alive()) {
         return;
     }
-    if (ag.double_random(100.0) < 0.03) {
+    if (ag.double_random(100.0) < 3.0) {
         patch.properties[ag.Patch.HAS_GREEN] = 1;
     }
 }
@@ -106,7 +112,7 @@ fn ag_patch_render(patch: ag.Patch) void {
 
 fn agent_render(agent: ag.Agent) void {
     const x = @mod(@as(c_int, @intFromFloat(agent.position.x * PATCH_LENGTH)), WORLD_WIDTH);
-    const y = @mod(@as(c_int, @intFromFloat(agent.position.y * PATCH_LENGTH)), WORLS_HEIGHT);
+    const y = @mod(@as(c_int, @intFromFloat(agent.position.y * PATCH_LENGTH)), WORLD_HEIGHT);
     rl.DrawCircle(x, y, 2, rl.WHITE);
 }
 
@@ -116,6 +122,38 @@ fn ag_world_render(world: *const ag.World) void {
     }
     for (world.agents.items()) |agent| {
         agent_render(agent);
+    }
+}
+
+fn ag_toolbar_render(config: *ag.Config, world: *ag.World, allocator: std.mem.Allocator) void {
+    _ = rg.GuiPanel(.{ .width = WINDOW_WIDTH, .height = TOOLBAR_HEIGHT }, null);
+
+    if (rg.GuiButton(
+        .{ .x = 20, .y = 20, .width = 80, .height = 20 },
+        rg.GuiIconText(rg.ICON_RESTART, if (world.is_new()) "Restart" else "Setup"),
+    ) > 0) {
+        ag_world_setup(world, allocator);
+    }
+    _ = rg.GuiToggle(
+        .{ .x = 110, .y = 20, .width = 60, .height = 20 },
+        "Go",
+        &config.running,
+    );
+    _ = rg.GuiLabel(
+        .{ .x = 180, .y = 8, .width = 200, .height = 20 },
+        rl.TextFormat("Ticks per second: %zu", config.ticks_per_second),
+    );
+    {
+        var tps: f32 = @floatFromInt(config.ticks_per_second);
+        _ = rg.GuiSlider(
+            .{ .x = 180, .y = 25, .width = 150, .height = 15 },
+            null,
+            null,
+            &tps,
+            1,
+            TARGET_FPS,
+        );
+        config.ticks_per_second = @intFromFloat(tps);
     }
 }
 
