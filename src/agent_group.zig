@@ -1,4 +1,6 @@
 const std = @import("std");
+const expect_equal = std.testing.expectEqual;
+
 const Agent = @import("agent.zig").Agent;
 
 pub const AgentGroup = struct {
@@ -21,8 +23,12 @@ pub const AgentGroup = struct {
         self.list.clearAndFree();
     }
 
-    pub fn spawn_count(self: *AgentGroup, count: usize) []Agent {
-        return self.list.addManyAsSlice(count) catch unreachable;
+    pub fn spawn_count(self: *AgentGroup, amount: usize) []Agent {
+        return self.list.addManyAsSlice(amount) catch unreachable;
+    }
+
+    pub fn count(self: AgentGroup) usize {
+        return self.list.items.len;
     }
 
     pub fn kill(self: *AgentGroup, agent: *const Agent) void {
@@ -39,12 +45,21 @@ pub const AgentGroup = struct {
     }
 };
 
+test "spawn_count + count" {
+    var group = AgentGroup.init(std.testing.allocator);
+    defer group.destroy();
+    _ = group.spawn_count(23);
+    try expect_equal(23, group.count());
+    _ = group.spawn_count(19);
+    try expect_equal(42, group.count());
+}
+
 test "clone" {
     var ag = AgentGroup.init(std.testing.allocator);
     defer ag.destroy();
     const as = ag.spawn_count(1);
-    as[0] = 42;
-    var cp = try ag.clone();
+    as[0].properties[Agent.IS_ALIVE] = 42;
+    var cp = ag.clone();
     defer cp.destroy();
     ag.list.items[0].properties[Agent.IS_ALIVE] = 0;
     try std.testing.expectEqual(42, cp.list.items[0].properties[Agent.IS_ALIVE]);

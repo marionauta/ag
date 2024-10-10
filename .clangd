@@ -1,4 +1,0 @@
-CompileFlags:
-  Add:
-    - "-I../vendor"
-    - "-I/opt/homebrew/Cellar/raylib/5.0/include"

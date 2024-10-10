@@ -15,7 +15,7 @@ clean:
 	rm -rf out
 
 out/bin/ag: src/main.zig $(COMMON_SOURCES) vendor/raygui.o
-	zig build --prefix out
+	zig build --summary none --prefix out
 
 vendor/raygui.o: vendor/raygui.h
 	$(CC) -DRAYGUI_IMPLEMENTATION -x c -c -o $@ $< `pkg-config --cflags raylib`

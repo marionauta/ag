@@ -3,5 +3,7 @@ const stdlib = @cImport({
 });
 
 pub fn double_random(max: f64) f64 {
-    return (max / stdlib.RAND_MAX) * @as(f64, @floatFromInt(stdlib.rand()));
+    const real_max = max * 2;
+    const res = (real_max / stdlib.RAND_MAX) * @as(f64, @floatFromInt(stdlib.rand()));
+    return res - max;
 }
