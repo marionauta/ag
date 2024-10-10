@@ -41,24 +41,24 @@ pub fn main() void {
     const allocator = std.heap.page_allocator;
 
     var config = ag.Config.new(TARGET_FPS / 2);
-    var world = ag.World.new(allocator);
-    defer world.destroy();
-    ag_world_setup(&world, allocator);
+    var world = ag.World.init(allocator);
+    defer world.deinit();
+    ag_world_setup(&world);
     var seconds_since_tick: f64 = 0;
 
     const should_close = false;
     while (!should_close and !rl.WindowShouldClose()) {
         const tick_time_delta = 1.0 / @as(f64, @floatFromInt(config.ticks_per_second));
         seconds_since_tick += rl.GetFrameTime();
-        const should_tick = seconds_since_tick > tick_time_delta;
+        const should_tick = !world.is_done() and seconds_since_tick > tick_time_delta;
         if (config.should_tick() and should_tick) {
             seconds_since_tick = 0;
             const new_world = world.tick(on_agent_tick, on_patch_tick);
-            world.destroy();
+            world.deinit();
             world = new_world;
         }
 
-        window_handle_events(&config, &world, allocator);
+        window_handle_events(&config, &world);
 
         if (world.is_done()) {
             config.running = false;
@@ -72,28 +72,27 @@ pub fn main() void {
         defer rl.EndDrawing();
         rl.ClearBackground(rl.BLACK);
         rl.DrawTexture(world_render_texture.texture, 0, TOOLBAR_HEIGHT, rl.WHITE);
-        ag_toolbar_render(&config, &world, allocator);
+        ag_toolbar_render(&config, &world);
     }
 }
 
-fn ag_world_setup(world: *ag.World, allocator: std.mem.Allocator) void {
+fn ag_world_setup(world: *ag.World) void {
     world.destroy();
-    world.* = ag.World.new(allocator);
-    world.spawn_agents(1000, on_agent_setup);
+    world.spawn_agents_setup(1000, on_agent_setup);
 }
 
-fn on_agent_setup(agent: *ag.Agent, world: *const ag.World) void {
+fn on_agent_setup(agent: *ag.Agent, world: ag.World) void {
     _ = world;
     agent.randomise_position(ag.World.WIDTH, ag.World.HEIGHT);
 }
 
-fn on_agent_tick(agent: *ag.Agent, world: *const ag.World) void {
+fn on_agent_tick(agent: *ag.Agent, world: ag.World) void {
     _ = world;
     agent.randomise_direction();
     agent.move_forward(1);
 }
 
-fn on_patch_tick(patch: *ag.Patch, world: *const ag.World) void {
+fn on_patch_tick(patch: *ag.Patch, world: ag.World) void {
     _ = world;
     if (patch.is_alive()) {
         return;
@@ -125,14 +124,14 @@ fn ag_world_render(world: *const ag.World) void {
     }
 }
 
-fn ag_toolbar_render(config: *ag.Config, world: *ag.World, allocator: std.mem.Allocator) void {
+fn ag_toolbar_render(config: *ag.Config, world: *ag.World) void {
     _ = rg.GuiPanel(.{ .width = WINDOW_WIDTH, .height = TOOLBAR_HEIGHT }, null);
 
     if (rg.GuiButton(
         .{ .x = 20, .y = 20, .width = 80, .height = 20 },
         rg.GuiIconText(rg.ICON_RESTART, if (world.is_new()) "Restart" else "Setup"),
     ) > 0) {
-        ag_world_setup(world, allocator);
+        ag_world_setup(world);
     }
     _ = rg.GuiToggle(
         .{ .x = 110, .y = 20, .width = 60, .height = 20 },
@@ -157,9 +156,9 @@ fn ag_toolbar_render(config: *ag.Config, world: *ag.World, allocator: std.mem.Al
     }
 }
 
-fn window_handle_events(config: *ag.Config, world: *ag.World, allocator: std.mem.Allocator) void {
+fn window_handle_events(config: *ag.Config, world: *ag.World) void {
     if (rl.IsKeyPressed(rl.KEY_R)) {
-        ag_world_setup(world, allocator);
+        ag_world_setup(world);
     }
     if (rl.IsKeyPressed(rl.KEY_ENTER)) {
         config.running = !config.running;
