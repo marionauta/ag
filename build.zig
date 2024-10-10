@@ -11,8 +11,9 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
+	exe.linkLibC();
+
     // raylib
-    exe.addIncludePath(.{ .cwd_relative = "/opt/homebrew/opt/raylib/include/" });
     exe.linkSystemLibrary("raylib");
 
     // raygui
