@@ -8,7 +8,7 @@ all: out/bin/ag
 
 .PHONY: run
 run: out/bin/ag
-	./out/bin/ag
+	./out/bin/ag examples/title.lua
 
 .PHONY: clean
 clean:

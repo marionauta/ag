@@ -1,6 +1,7 @@
+const std = @import("std");
 const lua = @cImport({
-    @cInclude("lauxlib.h");
     @cInclude("lua.h");
+    @cInclude("lauxlib.h");
     @cInclude("lualib.h");
 });
 
@@ -13,7 +14,7 @@ const ScriptingError = error{
     NotANumber,
 };
 
-pub fn state_from_file(filename: [*]const u8) ScriptingError!State {
+pub fn state_from_file(filename: [*:0]const u8) ScriptingError!State {
     const L = lua.luaL_newstate();
     if (L == null) {
         return ScriptingError.FailedStateCreation;
@@ -36,9 +37,10 @@ pub fn state_close(L: ?State) void {
     }
 }
 
-pub fn read_string(L: State, name: [*]const u8) ScriptingError![*]const u8 {
+pub fn read_string(L: State, name: [:0]const u8) ScriptingError![*]const u8 {
     lua.lua_getglobal(L, name);
     if (lua.lua_isstring(L, -1) == 0) {
+        std.debug.print("ERROR: Failed to read `{s}` string.\n", .{name});
         return ScriptingError.NotAString;
     }
     const result = lua.lua_tolstring(L, -1, null);
@@ -46,9 +48,10 @@ pub fn read_string(L: State, name: [*]const u8) ScriptingError![*]const u8 {
     return result;
 }
 
-pub fn read_number(state: State, name: [*]const u8) ScriptingError!f64 {
+pub fn read_number(state: State, name: [:0]const u8) ScriptingError!f64 {
     lua.lua_getglobal(state, name);
     if (lua.lua_isnumber(state, -1) == 0) {
+        std.debug.print("ERROR: Failed to read `{s}` number.\n", .{name});
         return ScriptingError.NotANumber;
     }
     const result = lua.lua_tonumber(state, -1);
