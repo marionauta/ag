@@ -11,7 +11,10 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-	exe.linkLibC();
+    exe.linkLibC();
+
+    exe.addIncludePath(.{ .cwd_relative = "/opt/homebrew/opt/luajit/include/luajit-2.1" });
+    exe.linkSystemLibrary("luajit");
 
     // raylib
     exe.linkSystemLibrary("raylib");
